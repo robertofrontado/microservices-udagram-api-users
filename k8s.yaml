@@ -1,0 +1,99 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: udagram-api-users
+  name: udagram-api-users
+  namespace: default
+  selfLink: /api/v1/namespaces/default/services/udagram-api-users
+spec:
+  ports:
+  - port: 8080
+    protocol: TCP
+    targetPort: 8080
+  selector:
+    app: udagram-api-users
+  sessionAffinity: None
+  type: ClusterIP
+status:
+  loadBalancer: {}
+    
+    
+    
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: udagram-api-users
+  labels:
+    app: udagram-api-users
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: udagram-api-users
+  template:
+    metadata:
+      labels:
+        app: udagram-api-users
+    spec:
+      containers:
+      - image: robertofrontado/udagram-api-users
+        name: udagram-api-users
+        ports:
+        - containerPort: 8080
+        imagePullPolicy: Always
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 8080
+          initialDelaySeconds: 3
+          periodSeconds: 3
+        env:
+          - name: POSTGRES_USERNAME
+            valueFrom:
+              secretKeyRef:
+                name: udagram-secrets
+                key: POSTGRES_USERNAME
+          - name: POSTGRES_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: udagram-secrets
+                key: POSTGRES_PASSWORD
+          - name: POSTGRES_HOST
+            valueFrom:
+              secretKeyRef:
+                name: udagram-secrets
+                key: POSTGRES_HOST
+          - name: POSTGRES_DB
+            valueFrom:
+              secretKeyRef:
+                name: udagram-secrets
+                key: POSTGRES_DB
+          - name: AWS_BUCKET
+            valueFrom:
+              secretKeyRef:
+                name: udagram-secrets
+                key: AWS_BUCKET
+          - name: AWS_REGION
+            valueFrom:
+              secretKeyRef:
+                name: udagram-secrets
+                key: AWS_REGION
+          - name: AWS_PROFILE
+            valueFrom:
+              secretKeyRef:
+                name: udagram-secrets
+                key: AWS_PROFILE
+          - name: JWT_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: udagram-secrets
+                key: JWT_SECRET
+          - name: URL
+            valueFrom:
+              secretKeyRef:
+                name: udagram-secrets
+                key: URL
+          
